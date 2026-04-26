@@ -11,6 +11,17 @@ contract applies.
 
 ---
 
+## [0.1.5] — 2026-04-26
+
+### Changed
+
+- CI/CD: switched npm publish auth from API token to Trusted Publishing
+  (OIDC). No more npm tokens to maintain or rotate. Verified against
+  pypi-style publisher trust at
+  https://www.npmjs.com/package/invoance/access.
+
+---
+
 ## [Unreleased]
 
 _Nothing yet._
