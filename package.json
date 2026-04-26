@@ -1,0 +1,48 @@
+{
+  "name": "invoance",
+  "version": "0.1.2",
+  "description": "Official TypeScript/Node.js SDK for the Invoance compliance API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist", "LICENSE", "README.md"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run lint && npm run test && npm run build"
+  },
+  "keywords": [
+    "invoance",
+    "compliance",
+    "attestation",
+    "cryptographic-proof",
+    "audit",
+    "audit-trail",
+    "soc2",
+    "hipaa",
+    "ed25519",
+    "tamper-evident"
+  ],
+  "author": "Invoance, Inc. <sdk@invoance.com>",
+  "license": "MIT",
+  "homepage": "https://invoance.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Invoance/invoance-node.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Invoance/invoance-node/issues"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.7",
+    "vitest": "^3.0",
+    "dotenv": "^16.4",
+    "@types/node": "^22"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
