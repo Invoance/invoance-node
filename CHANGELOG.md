@@ -17,6 +17,18 @@ _Nothing yet._
 
 ---
 
+## [0.1.3] — 2026-04-26
+
+### Removed
+
+- All references to the local-dev base URL (`http://localhost:33100`) from
+  the README and `.env.example`. The SDK is for SaaS users; local URLs
+  were dev-time artifacts that confused new users browsing the npm page.
+  `INVOANCE_BASE_URL` still works as an override but is no longer
+  documented as a normal use case.
+
+---
+
 ## [0.1.2] — 2026-04-26
 
 ### Changed
@@ -78,7 +90,8 @@ Initial public release.
 - Requires Node 18+ (uses native `fetch` and `crypto.subtle`).
 - Zero runtime dependencies — only devDependencies for build/test.
 
-[Unreleased]: https://github.com/Invoance/invoance-node/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/Invoance/invoance-node/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/Invoance/invoance-node/releases/tag/v0.1.3
 [0.1.2]: https://github.com/Invoance/invoance-node/releases/tag/v0.1.2
 [0.1.1]: https://github.com/Invoance/invoance-node/releases/tag/v0.1.1
 [0.1.0]: https://github.com/Invoance/invoance-node/releases/tag/v0.1.0

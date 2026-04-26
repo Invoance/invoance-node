@@ -16,8 +16,6 @@ Set your API key:
 
 ```bash
 export INVOANCE_API_KEY=invoance_live_...
-# INVOANCE_BASE_URL is optional and defaults to https://api.invoance.com.
-# Only set it if you're pointing at a self-hosted backend or local dev server.
 ```
 
 ```ts
@@ -96,12 +94,6 @@ You can also pass them explicitly:
 const client = new InvoanceClient({
   apiKey: "invoance_live_...",
   timeoutMs: 60_000,
-});
-
-// Self-hosted backend or local dev — override base URL:
-const localClient = new InvoanceClient({
-  apiKey: "invoance_live_...",
-  baseUrl: "http://localhost:33100",
 });
 ```
 
