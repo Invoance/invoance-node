@@ -11,6 +11,16 @@ contract applies.
 
 ---
 
+## [0.3.1] - 2026-06-26
+
+### Added
+
+- `audit.portalSessions.create({ linkDurationSeconds })`: the one-time link open window
+  in seconds (default 300, range 60..3600), alongside `sessionDurationSeconds`. Maps to
+  the new `link_duration_seconds` on `POST /v1/audit/portal_sessions`.
+
+---
+
 ## [0.3.0] - 2026-06-26
 
 ### Changed
@@ -22,11 +32,6 @@ contract applies.
   (`orgs.create`). The API resolves either the external id or the `aorg_` id.
 - **Event filters renamed to `rangeStart` / `rangeEnd`** on `events.list()`
   (previously `occurredAfter` / `occurredBefore`).
-
-### Added
-
-- `audit.portalSessions.create({ linkDurationSeconds })`: the one-time link open
-  window in seconds (default 300, range 60..3600), alongside `sessionDurationSeconds`.
 
 Breaking: this renames typed params. Update call sites, for example
 `ingest({ org })` becomes `ingest({ organizationId })`. Per this SDK's pre-1.0

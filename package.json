@@ -1,6 +1,6 @@
 {
   "name": "invoance",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Official TypeScript/Node.js SDK for the Invoance compliance API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
