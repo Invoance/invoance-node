@@ -13,3 +13,4 @@ export type * from "./events.js";
 export type * from "./documents.js";
 export type * from "./attestations.js";
 export type * from "./traces.js";
+export type * from "./audit.js";

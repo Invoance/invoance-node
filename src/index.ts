@@ -33,3 +33,9 @@ export {
 } from "./errors.js";
 export type { RequestContext } from "./errors.js";
 export type * from "./models/index.js";
+
+// Audit Logs: namespace lives on `client.audit`; these are the standalone helpers.
+export { AuditResource, contentIdempotencyKey } from "./resources/audit.js";
+export { verifyAuditEvent } from "./audit-verify.js";
+export type { AuditVerifyResult } from "./audit-verify.js";
+export { canonicalAuditBytes, payloadHashHex, normalizeTs, AUDIT_SCHEMA_ID } from "./audit-canonical.js";

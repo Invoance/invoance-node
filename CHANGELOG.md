@@ -11,6 +11,21 @@ contract applies.
 
 ---
 
+## [0.2.0] - 2026-06-26
+
+### Added
+
+- **Audit Logs** — `client.audit.*`: `events.{ingest,list,get,verify}`, `orgs`,
+  `streams`, `portalSessions`, `exports` (typed params, camelCase).
+- **`verifyAuditEvent()`** — offline Ed25519 verification of an audit event using Node's
+  built-in `crypto` (no new dependency), reconstructing the frozen `invoance.audit/1`
+  canonical bytes. Pin the tenant's key via `{ publicKey }`. Conformance is gated by the
+  shared golden vectors; one int64-beyond-2^53 vector is out of scope because JSON
+  numbers are JS doubles.
+- **`contentIdempotencyKey()`** — derive a stable `Idempotency-Key` from an event body.
+
+---
+
 ## [0.1.5] — 2026-04-26
 
 ### Changed
@@ -19,12 +34,6 @@ contract applies.
   (OIDC). No more npm tokens to maintain or rotate. Verified against
   pypi-style publisher trust at
   https://www.npmjs.com/package/invoance/access.
-
----
-
-## [Unreleased]
-
-_Nothing yet._
 
 ---
 

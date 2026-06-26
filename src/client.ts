@@ -24,6 +24,7 @@ import { EventsResource } from "./resources/events.js";
 import { DocumentsResource } from "./resources/documents.js";
 import { AttestationsResource } from "./resources/attestations.js";
 import { TracesResource } from "./resources/traces.js";
+import { AuditResource } from "./resources/audit.js";
 import {
   AuthenticationError,
   ForbiddenError,
@@ -53,6 +54,7 @@ export class InvoanceClient {
   readonly documents: DocumentsResource;
   readonly attestations: AttestationsResource;
   readonly traces: TracesResource;
+  readonly audit: AuditResource;
 
   private readonly transport: HttpTransport;
   private readonly resolvedConfig: ResolvedConfig;
@@ -66,6 +68,7 @@ export class InvoanceClient {
     this.documents = new DocumentsResource(this.transport);
     this.attestations = new AttestationsResource(this.transport);
     this.traces = new TracesResource(this.transport);
+    this.audit = new AuditResource(this.transport);
   }
 
   /**
