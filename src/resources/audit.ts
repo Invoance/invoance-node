@@ -140,6 +140,9 @@ class AuditPortalSessionsResource {
     if (params.sessionDurationSeconds != null) {
       body.session_duration_seconds = params.sessionDurationSeconds;
     }
+    if (params.linkDurationSeconds != null) {
+      body.link_duration_seconds = params.linkDurationSeconds;
+    }
     return this.t.post("/audit/portal_sessions", body);
   }
 }

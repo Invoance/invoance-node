@@ -23,6 +23,11 @@ contract applies.
 - **Event filters renamed to `rangeStart` / `rangeEnd`** on `events.list()`
   (previously `occurredAfter` / `occurredBefore`).
 
+### Added
+
+- `audit.portalSessions.create({ linkDurationSeconds })`: the one-time link open
+  window in seconds (default 300, range 60..3600), alongside `sessionDurationSeconds`.
+
 Breaking: this renames typed params. Update call sites, for example
 `ingest({ org })` becomes `ingest({ organizationId })`. Per this SDK's pre-1.0
 policy, breaking changes ship in a minor release.

@@ -78,6 +78,8 @@ export interface CreatePortalSessionParams {
   intent: string;
   /** Viewer session length in seconds (default 7200; clamped 60..86400). */
   sessionDurationSeconds?: number;
+  /** One-time link open window in seconds (default 300; clamped 60..3600). */
+  linkDurationSeconds?: number;
 }
 
 export interface CreateAuditExportParams {
