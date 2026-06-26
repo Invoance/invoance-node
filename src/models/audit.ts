@@ -14,8 +14,8 @@ export interface AuditTarget {
 }
 
 export interface IngestAuditEventParams {
-  /** Your external org id. */
-  org: string;
+  /** Your own id for the org — your external id (e.g. "org_01J8F3KQ2R7VWX9YB4ND6MCZAH") or the aorg_ id. */
+  organizationId: string;
   action: string;
   actor: AuditActor;
   occurredAt?: string;
@@ -27,12 +27,13 @@ export interface IngestAuditEventParams {
 }
 
 export interface ListAuditEventsParams {
-  orgId?: string;
+  organizationId?: string;
   actions?: string;
   actorId?: string;
   targetId?: string;
-  occurredAfter?: string;
-  occurredBefore?: string;
+  /** Inclusive RFC3339 bounds on occurred_at. */
+  rangeStart?: string;
+  rangeEnd?: string;
   limit?: number;
   cursor?: string;
 }
@@ -60,7 +61,8 @@ export interface ListAuditEventsResponse {
 }
 
 export interface CreateAuditOrgParams {
-  externalId: string;
+  /** Your own id for the org. */
+  organizationId: string;
   name?: string;
 }
 
@@ -71,7 +73,7 @@ export interface CreateAuditStreamParams {
 }
 
 export interface CreatePortalSessionParams {
-  orgId: string;
+  organizationId: string;
   /** `audit_logs` or `log_streams`. */
   intent: string;
   /** Viewer session length in seconds (default 7200; clamped 60..86400). */
@@ -79,7 +81,7 @@ export interface CreatePortalSessionParams {
 }
 
 export interface CreateAuditExportParams {
-  orgId: string;
+  organizationId: string;
   format: "csv" | "ndjson";
   filters?: Record<string, unknown>;
 }

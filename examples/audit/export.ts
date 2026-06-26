@@ -1,7 +1,7 @@
 /**
  * Audit Logs: create an async export and poll until the download URL is ready.
  *
- * Run:  npx tsx examples/audit/export.ts <org_id (aorg_...)> [csv|ndjson]
+ * Run:  npx tsx examples/audit/export.ts <organization_id> [csv|ndjson]
  */
 
 import { config } from "dotenv";
@@ -13,16 +13,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 config({ path: resolve(__dirname, "../../.env") });
 
 async function main() {
-  const orgId = process.argv[2];
+  const organizationId = process.argv[2];
   const format = (process.argv[3] as "csv" | "ndjson") ?? "csv";
-  if (!orgId) {
-    console.error("Usage: npx tsx examples/audit/export.ts <org_id (aorg_...)> [csv|ndjson]");
+  if (!organizationId) {
+    console.error("Usage: npx tsx examples/audit/export.ts <organization_id> [csv|ndjson]");
     process.exit(1);
   }
 
   const client = new InvoanceClient();
 
-  const job = await client.audit.exports.create({ orgId, format });
+  const job = await client.audit.exports.create({ organizationId, format });
   const exportId = job.id as string;
   console.log(`queued export ${exportId} (${format})`);
 

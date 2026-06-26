@@ -47,7 +47,7 @@ class AuditEventsResource {
   /** POST /audit/events – append one signed event. */
   async ingest(params: IngestAuditEventParams): Promise<Record<string, unknown>> {
     const body: Record<string, unknown> = {
-      org: params.org,
+      organization_id: params.organizationId,
       action: params.action,
       occurred_at: params.occurredAt ?? new Date().toISOString(),
       actor: params.actor,
@@ -63,12 +63,12 @@ class AuditEventsResource {
   /** GET /audit/events – keyset-paginated listing. */
   async list(params: ListAuditEventsParams = {}): Promise<ListAuditEventsResponse> {
     return this.t.get<ListAuditEventsResponse>("/audit/events", {
-      org_id: params.orgId,
+      organization_id: params.organizationId,
       actions: params.actions,
       actor_id: params.actorId,
       target_id: params.targetId,
-      occurred_after: params.occurredAfter,
-      occurred_before: params.occurredBefore,
+      range_start: params.rangeStart,
+      range_end: params.rangeEnd,
       limit: params.limit,
       cursor: params.cursor,
     });
@@ -89,7 +89,7 @@ class AuditOrgsResource {
   constructor(private readonly t: HttpTransport) {}
 
   async create(params: CreateAuditOrgParams): Promise<Record<string, unknown>> {
-    const body: Record<string, unknown> = { external_id: params.externalId };
+    const body: Record<string, unknown> = { organization_id: params.organizationId };
     if (params.name) body.name = params.name;
     return this.t.post("/audit/orgs", body);
   }
@@ -98,12 +98,12 @@ class AuditOrgsResource {
     return this.t.get("/audit/orgs");
   }
 
-  async integrity(orgId: string): Promise<Record<string, unknown>> {
-    return this.t.get(`/audit/orgs/${orgId}/integrity`);
+  async integrity(organizationId: string): Promise<Record<string, unknown>> {
+    return this.t.get(`/audit/orgs/${organizationId}/integrity`);
   }
 
-  async setRetention(orgId: string, days: number): Promise<Record<string, unknown>> {
-    return this.t.put(`/audit/orgs/${orgId}/retention`, { days });
+  async setRetention(organizationId: string, days: number): Promise<Record<string, unknown>> {
+    return this.t.put(`/audit/orgs/${organizationId}/retention`, { days });
   }
 }
 
@@ -111,23 +111,23 @@ class AuditStreamsResource {
   constructor(private readonly t: HttpTransport) {}
 
   /** Create a webhook stream; the signing secret is returned ONCE. */
-  async create(orgId: string, params: CreateAuditStreamParams): Promise<Record<string, unknown>> {
-    return this.t.post(`/audit/orgs/${orgId}/streams`, {
+  async create(organizationId: string, params: CreateAuditStreamParams): Promise<Record<string, unknown>> {
+    return this.t.post(`/audit/orgs/${organizationId}/streams`, {
       type: params.type ?? "webhook",
       url: params.url,
     });
   }
 
-  async list(orgId: string): Promise<Record<string, unknown>> {
-    return this.t.get(`/audit/orgs/${orgId}/streams`);
+  async list(organizationId: string): Promise<Record<string, unknown>> {
+    return this.t.get(`/audit/orgs/${organizationId}/streams`);
   }
 
-  async delete(orgId: string, streamId: string): Promise<Record<string, unknown>> {
-    return this.t.delete(`/audit/orgs/${orgId}/streams/${streamId}`);
+  async delete(organizationId: string, streamId: string): Promise<Record<string, unknown>> {
+    return this.t.delete(`/audit/orgs/${organizationId}/streams/${streamId}`);
   }
 
-  async test(orgId: string, streamId: string): Promise<Record<string, unknown>> {
-    return this.t.post(`/audit/orgs/${orgId}/streams/${streamId}/test`);
+  async test(organizationId: string, streamId: string): Promise<Record<string, unknown>> {
+    return this.t.post(`/audit/orgs/${organizationId}/streams/${streamId}/test`);
   }
 }
 
@@ -136,7 +136,7 @@ class AuditPortalSessionsResource {
 
   /** Mint a one-time hosted-viewer link. */
   async create(params: CreatePortalSessionParams): Promise<Record<string, unknown>> {
-    const body: Record<string, unknown> = { org_id: params.orgId, intent: params.intent };
+    const body: Record<string, unknown> = { organization_id: params.organizationId, intent: params.intent };
     if (params.sessionDurationSeconds != null) {
       body.session_duration_seconds = params.sessionDurationSeconds;
     }
@@ -149,7 +149,7 @@ class AuditExportsResource {
 
   /** Queue an async CSV/NDJSON export job. */
   async create(params: CreateAuditExportParams): Promise<Record<string, unknown>> {
-    const body: Record<string, unknown> = { org_id: params.orgId, format: params.format };
+    const body: Record<string, unknown> = { organization_id: params.organizationId, format: params.format };
     if (params.filters) body.filters = params.filters;
     return this.t.post("/audit/exports", body);
   }

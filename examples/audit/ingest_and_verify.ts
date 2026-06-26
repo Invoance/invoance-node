@@ -1,7 +1,7 @@
 /**
  * Audit Logs: ingest an event, read it back, and verify its signature OFFLINE.
  *
- * Run:  npx tsx examples/audit/ingest_and_verify.ts <org_external_id>
+ * Run:  npx tsx examples/audit/ingest_and_verify.ts <organization_id>
  *
  * The event is signed server-side; we read it back and check the Ed25519 signature
  * client-side with `verifyAuditEvent` — no second round-trip needed to trust the row.
@@ -16,9 +16,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 config({ path: resolve(__dirname, "../../.env") });
 
 async function main() {
-  const org = process.argv[2];
-  if (!org) {
-    console.error("Usage: npx tsx examples/audit/ingest_and_verify.ts <org_external_id>");
+  const organizationId = process.argv[2];
+  if (!organizationId) {
+    console.error("Usage: npx tsx examples/audit/ingest_and_verify.ts <organization_id>");
     process.exit(1);
   }
 
@@ -28,7 +28,7 @@ async function main() {
   // content, so a bare ingest() just works. For idempotent retries, pin both occurredAt
   // and idempotencyKey: contentIdempotencyKey(yourFullBody).
   const created = await client.audit.events.ingest({
-    org,
+    organizationId,
     action: "user.signed_in",
     actor: { type: "user", id: "u_42", name: "Ada Lovelace" },
     targets: [{ type: "doc", id: "d_1" }],

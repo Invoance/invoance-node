@@ -9,7 +9,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { canonicalAuditBytes, payloadHashHex } from "../src/audit-canonical.js";
 import { verifyAuditEvent } from "../src/audit-verify.js";
@@ -84,9 +84,77 @@ describe("audit namespace wiring", () => {
     expect(c.audit.portalSessions).toBeDefined();
     expect(c.audit.exports).toBeDefined();
 
-    const a = contentIdempotencyKey({ org: "o", action: "x" });
-    const b = contentIdempotencyKey({ action: "x", org: "o" });
+    const a = contentIdempotencyKey({ organization_id: "o", action: "x" });
+    const b = contentIdempotencyKey({ action: "x", organization_id: "o" });
     expect(a).toBe(b);
     expect(a.startsWith("idem_")).toBe(true);
+  });
+});
+
+describe("audit request wire shape (organization_id / range_* rename, 0.3.0)", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function mockClient() {
+    return new InvoanceClient({
+      apiKey: "invoance_live_test_key_not_real",
+      baseUrl: "http://localhost:33100",
+    });
+  }
+
+  it("events.ingest puts organization_id (not org) in the body", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ event_id: "aevt_x", ingested_at: "2026-01-01T00:00:00Z" }), {
+        status: 201,
+      }),
+    );
+    await mockClient().audit.events.ingest({
+      organizationId: "org_x",
+      action: "user.signed_in",
+      actor: { type: "user", id: "u1" },
+    });
+    const body = JSON.parse(vi.mocked(fetch).mock.calls[0][1]?.body as string);
+    expect(body.organization_id).toBe("org_x");
+    expect(body.org).toBeUndefined();
+  });
+
+  it("events.list sends organization_id + range_start/range_end query params", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ events: [], next_cursor: null }), { status: 200 }),
+    );
+    await mockClient().audit.events.list({
+      organizationId: "org_x",
+      rangeStart: "2026-01-01T00:00:00Z",
+      rangeEnd: "2026-02-01T00:00:00Z",
+    });
+    const url = new URL(vi.mocked(fetch).mock.calls[0][0] as string);
+    expect(url.searchParams.get("organization_id")).toBe("org_x");
+    expect(url.searchParams.get("range_start")).toBe("2026-01-01T00:00:00Z");
+    expect(url.searchParams.get("range_end")).toBe("2026-02-01T00:00:00Z");
+    expect(url.searchParams.has("org_id")).toBe(false);
+    expect(url.searchParams.has("occurred_after")).toBe(false);
+  });
+
+  it("orgs.create puts organization_id (not external_id) in the body", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ id: "aorg_x", organization_id: "org_x" }), { status: 201 }),
+    );
+    await mockClient().audit.orgs.create({ organizationId: "org_x", name: "Acme" });
+    const body = JSON.parse(vi.mocked(fetch).mock.calls[0][1]?.body as string);
+    expect(body.organization_id).toBe("org_x");
+    expect(body.external_id).toBeUndefined();
+  });
+
+  it("exports.create puts organization_id (not org_id) in the body", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ id: "aexp_x", status: "pending", format: "csv" }), {
+        status: 202,
+      }),
+    );
+    await mockClient().audit.exports.create({ organizationId: "org_x", format: "csv" });
+    const body = JSON.parse(vi.mocked(fetch).mock.calls[0][1]?.body as string);
+    expect(body.organization_id).toBe("org_x");
+    expect(body.org_id).toBeUndefined();
   });
 });
