@@ -49,7 +49,10 @@ export interface ComplianceEvent {
   payload: Record<string, unknown>;
   event_time?: string;
   retention_policy: string;
-  access_tier: string;
+  /** Storage tier. Not returned by every endpoint (e.g. the single-event GET omits it). */
+  access_tier?: string;
+  /** Retention expiry timestamp, when the server includes it. */
+  expires_at?: string;
   api_key_id?: string;
   user_id?: string;
   ingested_at: string;

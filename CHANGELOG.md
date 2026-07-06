@@ -11,6 +11,17 @@ contract applies.
 
 ---
 
+## [Unreleased]
+
+### Fixed
+
+- `ComplianceEvent.access_tier` is now optional and a new `ComplianceEvent.expires_at`
+  field was added, to match what `GET /v1/events/:id` actually returns (the endpoint
+  omits `access_tier` and includes `expires_at`). The type previously declared
+  `access_tier` as always present.
+
+---
+
 ## [0.3.1] - 2026-06-26
 
 ### Added
