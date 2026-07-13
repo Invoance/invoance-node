@@ -13,6 +13,31 @@ contract applies.
 
 ## [Unreleased]
 
+### Changed
+
+- `validate()` now probes `GET /v1/me` (the new key-introspection endpoint) instead of
+  `GET /v1/events?limit=1`. `/v1/me` requires no scopes, so a key limited to e.g.
+  `audit:*` scopes now validates cleanly instead of surfacing the old
+  "authenticated but lacks permission to list events" 403 quirk. The
+  `ValidationResult` shape and classification are unchanged (401 → invalid;
+  403/429 → valid with a reason; network/timeout → invalid), except the 403 reason
+  text no longer references listing events — it now indicates the request was
+  refused despite authenticating (e.g. IP access rules).
+
+### Added
+
+- `client.me()` — calls `GET /v1/me` and returns the parsed `MeResponse`:
+  organization, tenant, API key (id, prefix, last4, scopes), and rate limits for
+  the configured key. Requires no scopes; throws the usual typed SDK errors.
+- **Audit org lifecycle** — `client.audit.orgs` gains `update(organizationId, { name })`
+  (PATCH rename; pass `name: null` to clear), `archive(organizationId)` and
+  `unarchive(organizationId)` (idempotent; archiving freezes new activity while history
+  stays verifiable), and `delete(organizationId)` (hard delete, only when nothing signed
+  would be destroyed — the API returns 409 `org_not_deletable` otherwise).
+- `audit.orgs.list({ includeArchived })` — archived orgs are excluded by default; pass
+  `true` to include them (maps to `?include_archived=true`). Org objects now carry
+  `archived_at: string | null`.
+
 ### Fixed
 
 - `ComplianceEvent.access_tier` is now optional and a new `ComplianceEvent.expires_at`

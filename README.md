@@ -68,14 +68,21 @@ const { valid, reason, baseUrl } = await client.validate();
 if (!valid) throw new Error(`Invoance: ${reason} (base: ${baseUrl})`);
 ```
 
-`validate()` probes `GET /v1/events?limit=1`, never throws, and returns `{ valid, reason, baseUrl }` — use it in health checks, startup scripts, or CI guards.
+`validate()` probes `GET /v1/me` (scope-free key introspection — works for any valid key, whatever its scopes), never throws, and returns `{ valid, reason, baseUrl }` — use it in health checks, startup scripts, or CI guards.
+
+To see *what* the key is (organization, tenant, scopes, rate limits), call `me()` directly:
+
+```ts
+const me = await client.me();
+console.log(me.organization.name, me.api_key.scopes, me.limits.rate_limit_per_sec);
+```
 
 One-liner for a terminal sanity check, no SDK install required:
 
 ```bash
 curl -sS -o /dev/null -w "%{http_code}\n" \
   -H "Authorization: Bearer $INVOANCE_API_KEY" \
-  "${INVOANCE_BASE_URL:-https://api.invoance.com}/v1/events?limit=1"
+  "${INVOANCE_BASE_URL:-https://api.invoance.com}/v1/me"
 # 200 = key valid · 401 = bad key · anything else = investigate
 ```
 

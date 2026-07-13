@@ -66,6 +66,16 @@ export interface CreateAuditOrgParams {
   name?: string;
 }
 
+export interface UpdateAuditOrgParams {
+  /** New display name; pass `null` to clear it. */
+  name: string | null;
+}
+
+export interface ListAuditOrgsParams {
+  /** Include archived orgs in the listing (excluded by default). */
+  includeArchived?: boolean;
+}
+
 export interface CreateAuditStreamParams {
   url: string;
   /** v1 supports `webhook` only. */

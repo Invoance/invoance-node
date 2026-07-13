@@ -158,3 +158,100 @@ describe("audit request wire shape (organization_id / range_* rename, 0.3.0)", (
     expect(body.org_id).toBeUndefined();
   });
 });
+
+describe("audit org lifecycle wire shape (update / archive / unarchive / delete / list)", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function mockClient() {
+    return new InvoanceClient({
+      apiKey: "invoance_live_test_key_not_real",
+      baseUrl: "http://localhost:33100",
+    });
+  }
+
+  const org = {
+    id: "aorg_x",
+    organization_id: "org_x",
+    external_id: "org_x",
+    name: "Acme",
+    retention_days: 90,
+    created_at: "2026-01-01T00:00:00Z",
+    archived_at: null,
+  };
+
+  it("orgs.update sends PATCH /audit/orgs/:id with the new name in the body", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ ...org, name: "Acme Corp" }), { status: 200 }),
+    );
+    await mockClient().audit.orgs.update("org_x", { name: "Acme Corp" });
+    const [url, init] = vi.mocked(fetch).mock.calls[0];
+    expect(init?.method).toBe("PATCH");
+    expect(new URL(url as string).pathname).toBe("/v1/audit/orgs/org_x");
+    const body = JSON.parse(init?.body as string);
+    expect(body.name).toBe("Acme Corp");
+  });
+
+  it("orgs.update sends a JSON null name to clear it", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ ...org, name: null }), { status: 200 }),
+    );
+    await mockClient().audit.orgs.update("org_x", { name: null });
+    const body = JSON.parse(vi.mocked(fetch).mock.calls[0][1]?.body as string);
+    expect(body).toEqual({ name: null });
+  });
+
+  it("orgs.archive posts to /audit/orgs/:id/archive", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ ...org, archived_at: "2026-07-13T00:00:00Z" }), {
+        status: 200,
+      }),
+    );
+    const r = await mockClient().audit.orgs.archive("org_x");
+    const [url, init] = vi.mocked(fetch).mock.calls[0];
+    expect(init?.method).toBe("POST");
+    expect(new URL(url as string).pathname).toBe("/v1/audit/orgs/org_x/archive");
+    expect(r.archived_at).toBe("2026-07-13T00:00:00Z");
+  });
+
+  it("orgs.unarchive posts to /audit/orgs/:id/unarchive", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify(org), { status: 200 }),
+    );
+    const r = await mockClient().audit.orgs.unarchive("org_x");
+    const [url, init] = vi.mocked(fetch).mock.calls[0];
+    expect(init?.method).toBe("POST");
+    expect(new URL(url as string).pathname).toBe("/v1/audit/orgs/org_x/unarchive");
+    expect(r.archived_at).toBeNull();
+  });
+
+  it("orgs.delete sends DELETE /audit/orgs/:id", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ deleted: true, id: "aorg_x" }), { status: 200 }),
+    );
+    const r = await mockClient().audit.orgs.delete("org_x");
+    const [url, init] = vi.mocked(fetch).mock.calls[0];
+    expect(init?.method).toBe("DELETE");
+    expect(new URL(url as string).pathname).toBe("/v1/audit/orgs/org_x");
+    expect(r.deleted).toBe(true);
+  });
+
+  it("orgs.list sends include_archived=true when includeArchived is set", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ orgs: [] }), { status: 200 }),
+    );
+    await mockClient().audit.orgs.list({ includeArchived: true });
+    const url = new URL(vi.mocked(fetch).mock.calls[0][0] as string);
+    expect(url.searchParams.get("include_archived")).toBe("true");
+  });
+
+  it("orgs.list omits include_archived by default", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ orgs: [] }), { status: 200 }),
+    );
+    await mockClient().audit.orgs.list();
+    const url = new URL(vi.mocked(fetch).mock.calls[0][0] as string);
+    expect(url.searchParams.has("include_archived")).toBe(false);
+  });
+});

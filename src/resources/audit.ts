@@ -19,6 +19,8 @@ import type {
   IngestAuditEventParams,
   ListAuditEventsParams,
   ListAuditEventsResponse,
+  ListAuditOrgsParams,
+  UpdateAuditOrgParams,
 } from "../models/audit.js";
 
 function stableStringify(v: unknown): string {
@@ -94,8 +96,30 @@ class AuditOrgsResource {
     return this.t.post("/audit/orgs", body);
   }
 
-  async list(): Promise<Record<string, unknown>> {
-    return this.t.get("/audit/orgs");
+  async list(params: ListAuditOrgsParams = {}): Promise<Record<string, unknown>> {
+    return this.t.get("/audit/orgs", {
+      include_archived: params.includeArchived,
+    });
+  }
+
+  /** PATCH /audit/orgs/:id – rename an org (pass `name: null` to clear). */
+  async update(organizationId: string, params: UpdateAuditOrgParams): Promise<Record<string, unknown>> {
+    return this.t.patch(`/audit/orgs/${organizationId}`, { name: params.name });
+  }
+
+  /** POST /audit/orgs/:id/archive – idempotent; freezes new activity, history stays verifiable. */
+  async archive(organizationId: string): Promise<Record<string, unknown>> {
+    return this.t.post(`/audit/orgs/${organizationId}/archive`);
+  }
+
+  /** POST /audit/orgs/:id/unarchive – idempotent. */
+  async unarchive(organizationId: string): Promise<Record<string, unknown>> {
+    return this.t.post(`/audit/orgs/${organizationId}/unarchive`);
+  }
+
+  /** DELETE /audit/orgs/:id – only when nothing signed would be destroyed (409 otherwise). */
+  async delete(organizationId: string): Promise<Record<string, unknown>> {
+    return this.t.delete(`/audit/orgs/${organizationId}`);
   }
 
   async integrity(organizationId: string): Promise<Record<string, unknown>> {

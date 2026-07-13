@@ -82,6 +82,23 @@ export class HttpTransport {
     return this.handle<T>(resp, { method: "PUT", path });
   }
 
+  async patch<T = Record<string, unknown>>(
+    path: string,
+    body?: Record<string, unknown>,
+  ): Promise<T> {
+    const url = this.buildUrl(path);
+    const resp = await this.doFetch(
+      url,
+      {
+        method: "PATCH",
+        headers: this.headers,
+        body: body ? JSON.stringify(body) : undefined,
+      },
+      { method: "PATCH", path },
+    );
+    return this.handle<T>(resp, { method: "PATCH", path });
+  }
+
   async delete<T = Record<string, unknown>>(path: string): Promise<T> {
     const url = this.buildUrl(path);
     const resp = await this.doFetch(

@@ -20,6 +20,7 @@
 
 import { type ClientConfig, type ResolvedConfig, resolveConfig } from "./config.js";
 import { HttpTransport } from "./http.js";
+import type { MeResponse } from "./models/index.js";
 import { EventsResource } from "./resources/events.js";
 import { DocumentsResource } from "./resources/documents.js";
 import { AttestationsResource } from "./resources/attestations.js";
@@ -72,12 +73,25 @@ export class InvoanceClient {
   }
 
   /**
+   * Describe the authenticated caller.
+   *
+   * Issues `GET /v1/me` and returns the parsed response: the
+   * organization, tenant, API key (prefix, last4, scopes), and rate
+   * limits associated with the configured key. Requires no scopes —
+   * any valid API key can call it. Throws the usual SDK errors on
+   * failure ({@link AuthenticationError} on a bad key, etc.).
+   */
+  async me(): Promise<MeResponse> {
+    return this.transport.get<MeResponse>("/me");
+  }
+
+  /**
    * Probe a cheap authenticated endpoint to confirm the API key works.
    *
-   * Issues `GET /v1/events?limit=1` and classifies the outcome. Does
-   * not throw — every failure mode (bad key, network down, timeout,
-   * 5xx) is converted into a {@link ValidationResult} the caller can
-   * inspect.
+   * Issues `GET /v1/me` (scope-free introspection) and classifies the
+   * outcome. Does not throw — every failure mode (bad key, network
+   * down, timeout, 5xx) is converted into a {@link ValidationResult}
+   * the caller can inspect.
    *
    * ```ts
    * const { valid, reason } = await client.validate();
@@ -87,7 +101,7 @@ export class InvoanceClient {
   async validate(): Promise<ValidationResult> {
     const baseUrl = this.resolvedConfig.baseUrl;
     try {
-      await this.events.list({ limit: 1 });
+      await this.me();
       return { valid: true, reason: null, baseUrl };
     } catch (e) {
       if (e instanceof AuthenticationError) {
@@ -100,7 +114,8 @@ export class InvoanceClient {
       if (e instanceof ForbiddenError) {
         return {
           valid: true,
-          reason: "API key authenticated but lacks permission to list events",
+          reason:
+            "API key authenticated but this request was refused (e.g. IP access rules)",
           baseUrl,
         };
       }
