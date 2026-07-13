@@ -1,10 +1,14 @@
 {
   "name": "invoance",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Official TypeScript/Node.js SDK for the Invoance compliance API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist", "LICENSE", "README.md"],
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -35,12 +39,11 @@
   "bugs": {
     "url": "https://github.com/Invoance/invoance-node/issues"
   },
-  "dependencies": {},
   "devDependencies": {
-    "typescript": "^5.7",
-    "vitest": "^3.0",
+    "@types/node": "^22",
     "dotenv": "^16.4",
-    "@types/node": "^22"
+    "typescript": "^5.7",
+    "vitest": "^3.0"
   },
   "engines": {
     "node": ">=18"
